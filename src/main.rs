@@ -1,36 +1,8 @@
-extern crate mecab;
-
-use mecab::Tagger;
-
-fn segment_sentence(input: &str) -> Vec<String> {
-    let mut tagger = Tagger::new("");
-    let mut vocab: Vec<String> = Vec::new();
-
-    for node in tagger.parse_to_node(input).iter_next() {
-        let stat = node.stat as i32;
-        if stat.ne(&mecab::MECAB_BOS_NODE) && stat.ne(&mecab::MECAB_EOS_NODE) {
-            let surface = &node.surface[..node.length as usize];
-            // println!(
-            //     "Surface {}, Bytes: {:?} : Length: {}, From {} to {}",
-            //     surface,
-            //     surface.as_bytes(),
-            //     node.length as isize,
-            //     input.len() as isize - node.surface.len() as isize,
-            //     input.len() as isize - node.surface.len() as isize + node.length as isize
-            // );
-            if surface == "ない" && vocab.len() > 0 {
-                let combined = vocab.pop().expect("There was no previous message") + "ない";
-
-                vocab.push(combined);
-            } else {
-                vocab.push(surface.to_owned());
-            }
-        }
-    }
-
-    // println!("{:?}", vocab);
-    vocab
-}
+use lindera::{
+    mode::Mode,
+    tokenizer::{DictionaryConfig, Tokenizer, TokenizerConfig},
+    DictionaryKind,
+};
 
 fn get_reading_gloss(vocab: String) {
     println!("{}", vocab);
@@ -57,31 +29,74 @@ fn get_reading_gloss(vocab: String) {
     }
 }
 
+fn get_jp_body() -> String {
+    use error_chain::error_chain;
+    use std::io::Read;
+
+    error_chain! {
+        foreign_links {
+            Io(std::io::Error);
+            HttpRequest(reqwest::Error);
+        }
+    }
+
+    let mut res = reqwest::blocking::get("http://localhost:3000").expect("Can't get URL");
+    let mut body = String::new();
+    res.read_to_string(&mut body).expect("Can't parse body");
+
+    // println!("Status: {}", res.status());
+    // println!("Headers:\n{:#?}", res.headers());
+    // println!("Body:\n{}", body);
+
+    body
+}
+
+fn parse_to_kanji(text: &str) {
+    let lindera_sentence = segment_lindera(text);
+
+    // println!("Sentence {}", text);
+
+    println!("\nSegmentation of sentence using Lindera\n");
+    for vocab in lindera_sentence {
+        get_reading_gloss(vocab);
+    }
+}
+
+fn segment_lindera(text: &str) -> Vec<String> {
+    let mut vocab: Vec<String> = Vec::new();
+    let dictionary = DictionaryConfig {
+        kind: Some(DictionaryKind::UniDic),
+        path: None,
+    };
+
+    let config = TokenizerConfig {
+        dictionary,
+        user_dictionary: None,
+        mode: Mode::Normal,
+        with_details: false,
+    };
+
+    // create tokenizer
+    let tokenizer = Tokenizer::from_config(config).expect("Can't retrieve tokenizer configuration");
+
+    // tokenize the text
+    let tokens = tokenizer.tokenize(text).expect("Could not tokenize result");
+
+    // output the tokens
+    for token in tokens {
+        vocab.push(String::from(token.text));
+    }
+
+    vocab
+}
+
 fn main() {
-    // let req: Request = Request::new("http://localhost:3000");
-
-    // let kanji_form = "お母さん";
-
-    // let entry = jmdict::entries()
-    //     .find(|e| e.kanji_elements().any(|k| k.text == kanji_form))
-    //     .unwrap();
-
-    // let reading_form = entry.reading_elements().next().unwrap().text;
-    // println!("{}", reading_form);
+    // let jp_body = get_jp_body();
+    // parse_to_kanji(jp_body.as_str());
 
     let jp_text =  "身の丈に合わない魔法だと、すぐMPが足りなくなるんだよね。要は継戦能力が足りないんだよ、マリアちゃん";
-    let segmented_sentence = segment_sentence(jp_text);
-
-    println!("Sentence {}", jp_text);
-    for vocab in segmented_sentence {
-        get_reading_gloss(vocab);
-    }
+    parse_to_kanji(jp_text);
 
     let other_jp = "太郎は次郎が持っている本を花子に渡した。";
-    let segment = segment_sentence(other_jp);
-
-    println!("\nSentence {}", other_jp);
-    for vocab in segment {
-        get_reading_gloss(vocab);
-    }
+    parse_to_kanji(other_jp);
 }
