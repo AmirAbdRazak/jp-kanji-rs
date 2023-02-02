@@ -2,5 +2,5 @@
 /.env
 /Cargo.lock
 /node_server/node_modules
-package-lock.json
+/node_server/package-lock.json
 doc.txt
