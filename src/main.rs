@@ -70,10 +70,6 @@ fn get_jp_html() -> String {
     let mut body = String::new();
     res.read_to_string(&mut body).expect("Can't parse body");
 
-    // println!("Status: {}", res.status());
-    // println!("Headers:\n{:#?}", res.headers());
-    // println!("Body:\n{}", body);
-
     body
 }
 
