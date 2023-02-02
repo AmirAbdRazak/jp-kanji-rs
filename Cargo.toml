@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-jmdict = "2.0.0"
+jmdict = { version = "2.0.0", features = ["full", "scope-uncommon", "translations-eng"] }
 error-chain = "0.12.4"
+fuzzy-matcher = "0.3.7"
 reqwest = { version = "0.11.14", features = ["blocking"] }
 lindera = { version = "0.19.0", features = ["unidic"] }
