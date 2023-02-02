@@ -6,10 +6,8 @@ Developed in Rust using Mecab and JMDict libraries for everything related to Jap
 
 <b>Project is not in Minimal Viable Product stage yet.</b>
 
-Example from running `cargo run` on "結界といい人払いといい、少なくとも協力する意思があることがわかる": </br>
-![image](https://user-images.githubusercontent.com/83165406/216344535-48f6a723-816c-49c8-a0fa-3eda1e3947a3.png)
-
-Using `cargo build --release` on the other hand would result in `0.14492431s` processing time which I could definitely make it lower if I used JMDict's default feature which gives 30000 entries instead of using the full database, but even if it made it 100x faster the vocabulary cut isn't worth it.
+Example from running `cargo build --release` on "これだけの量の食料で一週間のキャンプに足りるでしょうか": </br>
+![image](https://user-images.githubusercontent.com/83165406/216356410-3e454654-af4e-42ce-bc69-52a5df0c3af3.png)
 
 
 ---
