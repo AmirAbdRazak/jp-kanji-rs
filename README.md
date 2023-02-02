@@ -2,7 +2,7 @@
 
 Similar to Japanese.io or Japanese10, this will give you information about a kanji that you hover. 
 </br>
-Developed in Rust using Lindera and JMDict libraries for everything related to Japanese processing.
+Developed in Rust using Mecab and JMDict libraries for everything related to Japanese processing.
 
 <b>Project is not in Minimal Viable Product stage yet.</b>
 
