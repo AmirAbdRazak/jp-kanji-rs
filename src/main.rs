@@ -10,7 +10,7 @@ fn main() {
     );
 
     let single_sentence_time = SystemTime::now();
-    let single_sentence = "結界といい人払いといい、少なくとも協力する意思があることがわかる";
+    let single_sentence = "これだけの量の食料で一週間のキャンプに足りるでしょうか";
     japanese::kanji_info(single_sentence);
     println!(
         "Processing of single_sentence: {}s",

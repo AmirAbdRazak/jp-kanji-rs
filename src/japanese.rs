@@ -97,9 +97,16 @@ fn reading_gloss(vocab: String) {
 
     println!("\nOriginal Vocab: {}", vocab_info.original_vocab);
     for info in vocab_info.related_info {
+        let check_first = info.kanjis.first();
+        let first_kanji: &str;
+        if let Some(kanji) = check_first {
+            first_kanji = kanji;
+        } else {
+            first_kanji = &vocab_info.original_vocab;
+        }
         println!(
             "{} ({})",
-            info.kanjis.first().expect("Could not retrieve kanji"),
+            first_kanji,
             info.readings.first().expect("Could not retrieve reading"),
         );
         println!("Meaning: {:?}", info.glosses);
@@ -108,7 +115,7 @@ fn reading_gloss(vocab: String) {
 
 fn is_particle(vocab: &str) -> bool {
     let black_list = [
-        "ない", "こと", "ある", "する", "とも", "でき", "いい", "は", "が", "、",
+        "こと", "ある", "する", "とも", "でき", "いい", "は", "が", "、",
     ];
     let entry = jmdict::entries().find(|e| e.reading_elements().any(|r| &r.text == &vocab));
     if black_list.contains(&vocab) {
