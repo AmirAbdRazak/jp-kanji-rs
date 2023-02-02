@@ -5,6 +5,8 @@
 
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
+use jmdict::Entry;
+use unicode_script::UnicodeScript;
 
 use mecab::Tagger;
 struct RelatedInfo {
@@ -51,18 +53,14 @@ fn filter_matches(vocab: &str, e: &jmdict::Entry) -> bool {
     })
 }
 
-fn reading_gloss(vocab: String) {
-    let true_match = jmdict::entries().find(|e| {
-        e.kanji_elements().any(|k| k.text == vocab) || e.reading_elements().any(|r| r.text == vocab)
-    });
-
+fn reading_gloss(vocab: String, entry: Option<Entry>) {
     let mut entries: Vec<jmdict::Entry> = Vec::new();
-    if true_match.is_none() {
+    if entry.is_none() {
         entries = jmdict::entries()
             .filter(|e| filter_matches(&vocab, e))
             .collect();
     } else {
-        entries.push(true_match.unwrap());
+        entries.push(entry.unwrap());
     }
 
     let mut vocab_info = VocabInfo {
@@ -113,15 +111,7 @@ fn reading_gloss(vocab: String) {
     }
 }
 
-fn is_particle(vocab: &str) -> bool {
-    let black_list = [
-        "こと", "ある", "する", "とも", "でき", "いい", "は", "が", "、",
-    ];
-    let entry = jmdict::entries().find(|e| e.reading_elements().any(|r| &r.text == &vocab));
-    if black_list.contains(&vocab) {
-        return true;
-    }
-
+fn is_particle(entry: &Option<Entry>) -> bool {
     if entry.is_some() {
         let mut parts_of_speech: jmdict::PartsOfSpeech =
             entry.unwrap().senses().next().unwrap().parts_of_speech();
@@ -134,14 +124,31 @@ fn is_particle(vocab: &str) -> bool {
     false
 }
 
+fn is_short_hiragana(vocab: &str) -> bool {
+    vocab
+        .chars()
+        .all(|c| c.script() == unicode_script::Script::Hiragana)
+        && vocab.len() <= 6
+}
+
 pub fn kanji_info(text: &str) {
     println!("Sentence: {}", text);
+
     let segmented_sentence = segment(text);
     for vocab in segmented_sentence {
-        if is_particle(&vocab) {
+        if is_short_hiragana(&vocab) {
             continue;
+        } else {
+            let entry = jmdict::entries().find(|e| {
+                e.kanji_elements().any(|k| k.text == vocab)
+                    || e.reading_elements().any(|r| r.text == vocab)
+            });
+
+            if is_particle(&entry) {
+                continue;
+            }
+            reading_gloss(vocab, entry);
         }
-        reading_gloss(vocab);
     }
 
     println!("\n");
