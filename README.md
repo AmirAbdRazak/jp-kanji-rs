@@ -15,7 +15,7 @@ TODO:
 [X] Translate the sentence segmentation that are exact matches </br>
 [X] Filter out words and more accuracy, should support incomplete vocabulary </br>
 [X] Clean up code and make it modular
-[] Send it to the web using WASM and show information by hovering </br>
-[] Create UI for it </br>
-[] Make UI dynamic </br>
-[] Create documentation for this project </br>
+[ ] Send it to the web using WASM and show information by hovering </br>
+[ ] Create UI for it </br>
+[ ] Make UI dynamic </br>
+[ ] Create documentation for this project </br>
