@@ -1,3 +1,22 @@
+// --------------------------- TODO 1-------------------------------- //
+// Turn this output from this
+// 過ぎ
+
+// Original Vocab: 過ぎ
+// Kanji: ["過ぎ", "過ぎる", "過ぎ去る", "過去る"]
+// Readings: ["すぎ", "すぎる", "すぎさる"]
+// Glosses: ["past", "too (much)", "to pass through", "to pass (of time)", "to have expired", "to exceed", "to be no more than ...", "to be excessive", "to pass"]
+
+// To this
+// Original Vocab: 過ぎ
+// Kanji 1: {Kanji: ..., Reading: ..., Gloss: ...}
+// Kanji 2: {Kanji: ..., Reading: ..., Gloss: ...}
+// Kanji 3: {Kanji: ..., Reading: ..., Gloss: ...}
+
+// ---------------------------- TODO 2 ------------------------------ //
+// Make some enum or something and implement all the relevant stuff
+//inside those enums to make the code more modular
+// ------------------------------------------------------------------ //
 use lindera::{
     mode::Mode,
     tokenizer::{DictionaryConfig, Tokenizer, TokenizerConfig},
@@ -73,20 +92,20 @@ fn reading_gloss(vocab: String) {
             break;
         } else {
             count += 1;
-        }
 
-        for kanji in entry.kanji_elements() {
-            kanjis.push(kanji.text.to_string());
-        }
+            for kanji in entry.kanji_elements() {
+                kanjis.push(kanji.text.to_string());
+            }
 
-        for reading in entry.reading_elements() {
-            readings.push(reading.text.to_string());
-        }
+            for reading in entry.reading_elements() {
+                readings.push(reading.text.to_string());
+            }
 
-        for sense in entry.senses() {
-            let gloss = sense.glosses().next().expect("Failed to find glossary");
-            if gloss.language == jmdict::GlossLanguage::English {
-                glosses.push(gloss.text.to_string());
+            for sense in entry.senses() {
+                let gloss = sense.glosses().next().expect("Failed to find glossary");
+                if gloss.language == jmdict::GlossLanguage::English {
+                    glosses.push(gloss.text.to_string());
+                }
             }
         }
     }
