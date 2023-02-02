@@ -158,14 +158,17 @@ fn main() {
     // let test = "戻らないない";
     // parse_to_kanji(test);
 
-    let particle1 = "ぜよ";
-    let particle2 = "にしてからが";
-    let particle3 = "ない";
+    // let particle1 = "ぜよ";
+    // let particle2 = "にしてからが";
+    // let particle3 = "ない";
 
-    parse_to_kanji(particle1);
-    parse_to_kanji(particle2);
-    parse_to_kanji(particle3);
+    // parse_to_kanji(particle1);
+    // parse_to_kanji(particle2);
+    // parse_to_kanji(particle3);
 
     // let other_jp = "太郎は次郎が持っている本を花子に渡した。";
     // parse_to_kanji(other_jp);
+
+    let test1 = "足りない";
+    parse_to_kanji(test1);
 }
