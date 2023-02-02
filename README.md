@@ -11,10 +11,11 @@ Example from running cargo run on "足りない": </br>
 
 
 TODO:
-[X] Create basic sentence segmentation
-[X] Translate the sentence segmentation that are exact matches
-[X] Filter out words and more accuracy, should support incomplete vocabulary
-[] Send it to the web using WASM and show information by hovering
-[] Create UI for it
-[] Make UI dynamic
-[] Create documentation for this project
+[X] Create basic sentence segmentation </br>
+[X] Translate the sentence segmentation that are exact matches </br>
+[X] Filter out words and more accuracy, should support incomplete vocabulary </br>
+[X] Clean up code and make it modular
+[] Send it to the web using WASM and show information by hovering </br>
+[] Create UI for it </br>
+[] Make UI dynamic </br>
+[] Create documentation for this project </br>
