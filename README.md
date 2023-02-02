@@ -6,6 +6,10 @@ Developed in Rust using Lindera and JMDict libraries for everything related to J
 
 Project is not in Minimal Viable Product stage yet. 
 
+Example from running cargo run on "足りない":
+![image](https://user-images.githubusercontent.com/83165406/216244133-ca4185b7-2ba6-40ad-bfeb-2d761945b15d.png)
+
+
 TODO:
 [X] Create basic sentence segmentation
 [X] Translate the sentence segmentation that are exact matches
