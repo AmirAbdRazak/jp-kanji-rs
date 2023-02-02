@@ -6,9 +6,8 @@
 use fuzzy_matcher::skim::SkimMatcherV2;
 use fuzzy_matcher::FuzzyMatcher;
 use jmdict::Entry;
-use unicode_script::UnicodeScript;
-
 use mecab::Tagger;
+use unicode_script::UnicodeScript;
 struct RelatedInfo {
     kanjis: Vec<String>,
     readings: Vec<String>,
@@ -38,11 +37,6 @@ fn segment(text: &str) -> Vec<String> {
 fn filter_matches(vocab: &str, e: &jmdict::Entry) -> bool {
     let matcher = SkimMatcherV2::default();
     e.kanji_elements().any(|k| {
-        let true_match = k.text == vocab;
-        if true_match {
-            return true;
-        }
-
         let fuzzy_match = matcher.fuzzy_match(k.text, &vocab);
         let mut val = 0;
         if fuzzy_match.is_some() {
@@ -53,7 +47,32 @@ fn filter_matches(vocab: &str, e: &jmdict::Entry) -> bool {
     })
 }
 
-fn reading_gloss(vocab: String, entry: Option<Entry>) {
+fn get_related_info(entry: &Entry) -> RelatedInfo {
+    let mut kanjis = Vec::new();
+    entry
+        .kanji_elements()
+        .for_each(|e| kanjis.push(e.text.to_string()));
+
+    let mut readings = Vec::new();
+    entry
+        .reading_elements()
+        .for_each(|e| readings.push(e.text.to_string()));
+
+    let mut glosses = Vec::new();
+    entry.senses().for_each(|s| {
+        s.glosses()
+            .filter(|e| e.language == jmdict::GlossLanguage::English)
+            .for_each(|e| glosses.push(e.text.to_string()))
+    });
+
+    RelatedInfo {
+        kanjis,
+        readings,
+        glosses,
+    }
+}
+
+fn related_kanjis(vocab: String, entry: Option<Entry>) -> VocabInfo {
     let mut entries: Vec<jmdict::Entry> = Vec::new();
     if entry.is_none() {
         entries = jmdict::entries()
@@ -69,46 +88,10 @@ fn reading_gloss(vocab: String, entry: Option<Entry>) {
     };
 
     entries.iter().take(3).for_each(|entry| {
-        let mut kanjis = Vec::new();
-        entry
-            .kanji_elements()
-            .for_each(|e| kanjis.push(e.text.to_string()));
-
-        let mut readings = Vec::new();
-        entry
-            .reading_elements()
-            .for_each(|e| readings.push(e.text.to_string()));
-
-        let mut glosses = Vec::new();
-        entry.senses().for_each(|s| {
-            s.glosses()
-                .filter(|e| e.language == jmdict::GlossLanguage::English)
-                .for_each(|e| glosses.push(e.text.to_string()))
-        });
-
-        vocab_info.related_info.push(RelatedInfo {
-            kanjis,
-            readings,
-            glosses,
-        });
+        vocab_info.related_info.push(get_related_info(entry));
     });
 
-    println!("\nOriginal Vocab: {}", vocab_info.original_vocab);
-    for info in vocab_info.related_info {
-        let check_first = info.kanjis.first();
-        let first_kanji: &str;
-        if let Some(kanji) = check_first {
-            first_kanji = kanji;
-        } else {
-            first_kanji = &vocab_info.original_vocab;
-        }
-        println!(
-            "{} ({})",
-            first_kanji,
-            info.readings.first().expect("Could not retrieve reading"),
-        );
-        println!("Meaning: {:?}", info.glosses);
-    }
+    vocab_info
 }
 
 fn is_particle(entry: &Option<Entry>) -> bool {
@@ -131,10 +114,11 @@ fn is_short_hiragana(vocab: &str) -> bool {
         && vocab.len() <= 6
 }
 
-pub fn kanji_info(text: &str) {
+pub fn sentence_info(text: &str) {
     println!("Sentence: {}", text);
-
     let segmented_sentence = segment(text);
+
+    let mut sentence_info: Vec<VocabInfo> = Vec::new();
     for vocab in segmented_sentence {
         if is_short_hiragana(&vocab) {
             continue;
@@ -147,9 +131,28 @@ pub fn kanji_info(text: &str) {
             if is_particle(&entry) {
                 continue;
             }
-            reading_gloss(vocab, entry);
+            sentence_info.push(related_kanjis(vocab, entry));
         }
     }
 
-    println!("\n");
+    for vocab_info in sentence_info {
+        println!("\nOriginal Vocab: {}", vocab_info.original_vocab);
+        for info in vocab_info.related_info {
+            let check_first = info.kanjis.first();
+            let first_kanji: &str;
+            if let Some(kanji) = check_first {
+                first_kanji = kanji;
+            } else {
+                first_kanji = &vocab_info.original_vocab;
+            }
+            println!(
+                "{} ({})",
+                first_kanji,
+                info.readings.first().expect("Could not retrieve reading"),
+            );
+            println!("Meaning: {:?}", info.glosses);
+        }
+
+        println!("\n");
+    }
 }
